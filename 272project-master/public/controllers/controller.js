@@ -57,6 +57,11 @@ myApp.config(function($routeProvider){
     controller : 'CartCtrl'
   })
   
+  .when('/emptycart',{
+    templateUrl : '/emptyCart.html',
+    controller : 'EmptyCartCtrl'
+  })
+  
   .when('/sale',{
     templateUrl : '/sale.html',
     controller : 'SaleCtrl'
@@ -304,7 +309,6 @@ myApp.controller('ProductCtrl', ['$scope', '$http', '$window', '$location', '$ro
 			});
 		
 			$window.alert('Product Added to Cart Successfully..!!');
-			$location.path('/cart');
 		}	
 	};
 
@@ -324,6 +328,12 @@ myApp.controller('CartCtrl', ['$scope', '$http', '$window', '$rootScope', '$loca
 			$http.get('/cartlist/'+ $rootScope.username).success(function(response) {
 			console.log("I got the item info");
 			console.log(response);
+			
+			if(response.length <1)
+			{
+				$location.path('/emptycart');
+			}
+			else{
 			var total=0;
 			
 			for(var i=0; i<response.length; i++)
@@ -337,7 +347,8 @@ myApp.controller('CartCtrl', ['$scope', '$http', '$window', '$rootScope', '$loca
 			$scope.vat = (parseFloat(total) * 8.5) /100;
 			$scope.totalWithTax = parseFloat($scope.vat) + parseInt($scope.total) + 2;
 			
-			});
+			}
+		});
 		}
 	}
 	refresh();
@@ -362,7 +373,7 @@ myApp.controller('CartCtrl', ['$scope', '$http', '$window', '$rootScope', '$loca
 //sale
 myApp.controller('SaleCtrl', ['$scope', '$http', '$window', '$rootScope', function($scope, $http, $window, $rootScope) {
     console.log("Hello World from Sale controller");
-	
+
 		
 	$scope.itemDetail= function(name,manu,price)
 	{
@@ -372,4 +383,15 @@ myApp.controller('SaleCtrl', ['$scope', '$http', '$window', '$rootScope', functi
 	};
 
 
+}]);﻿
+
+//empty cart
+myApp.controller('EmptyCartCtrl', ['$scope', '$http', '$window', '$rootScope', '$location', function($scope, $http, $window, $rootScope, $location) {
+    console.log("Hello World from empty cart controller");
+
+	$scope.cancel = function()
+	{
+		$location.path('/home');
+	}
+	
 }]);﻿
