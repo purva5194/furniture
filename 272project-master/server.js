@@ -209,5 +209,6 @@ app.put('/recoverpassword', function (req, res) {
   );
 });
 
-app.listen(7000);
-console.log("Server running on port 7000");
+app.listen(process.env.PORT || 3000, function(){
+  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
+});
