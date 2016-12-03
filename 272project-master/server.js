@@ -9,71 +9,33 @@ var session = require('express-session');
 var mongoose = require('mongoose');
 
 
-
 var sess;
 
 app.use(session({
     secret: 'secret',
     saveUninitialized: false,
     resave: false,
-    HttpOnly: false, 
-    
+    HttpOnly: false
+
 }));
 
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json());
 
-/**
-app.get('/contactlist', function (req, res) {
-  console.log('I received a GET request');
-
-  db.contactlist.find(function (err, docs) {
-    console.log(docs);
-    res.json(docs);
-  });
-});
-
-app.post('/contactlist', function (req, res) {
-  console.log(req.body);
-  db.contactlist.insert(req.body, function(err, doc) {
-    res.json(doc);
-  });
-});
-
-app.delete('/contactlist/:id', function (req, res) {
-  var id = req.params.id;
-  console.log(id);
-  db.contactlist.remove({_id: mongojs.ObjectId(id)}, function (err, doc) {
-    res.json(doc);
-  });
-});
-
-app.get('/contactlist/:id', function (req, res) {
-  var id = req.params.id;
-  console.log(id);
-  db.contactlist.findOne({_id: mongojs.ObjectId(id)}, function (err, doc) {
-    res.json(doc);
-  });
-});
-
-app.put('/contactlist/:id', function (req, res) {
-  var id = req.params.id;
-  console.log(req.body.name);
-  db.contactlist.findAndModify({
-    query: {_id: mongojs.ObjectId(id)},
-    update: {$set: {name: req.body.name, email: req.body.email, number: req.body.number}},
-    new: true}, function (err, doc) {
-      res.json(doc);
-    }
-  );
-});
-**/
 
 //customer registration
 app.post('/customerlist', function (req, res) {
   console.log(req.body);
   db1.customerlist.insert(req.body, function(err, doc) {
-    res.json(doc);
+	if (err) {
+      console.log(err);
+      if (err.code == 11000) {
+        return res.json({ success: false, message: 'username or email already taken'})
+      } else {
+        return res.send(err);
+      }
+    }
+    res.json({ success: true });
   });
 });
 
@@ -122,10 +84,13 @@ app.get('/sessioncheck', function (req, res) {
 	
   if(sess.username)
   {
-	  res.send(sess.username);
+
+	    res.send(sess.username);
+
   }
   else
   {
+      console.log("no");
 	  res.send("not exist");
   }
 	
@@ -153,7 +118,7 @@ app.get('/sessiondestroy', function (req, res) {
 app.get('/customerlist/:name', function (req, res) {
 
   console.log('I received a user info request');
-
+    console.log(req.params.name);
   db1.customerlist.findOne({"username" : req.params.name.toString()}, function (err, docs) {
 	console.log(docs);
 	res.json(docs);
@@ -161,13 +126,34 @@ app.get('/customerlist/:name', function (req, res) {
   });
 });
 
+//stores items details
+
+app.post('/storedata/:name/:manu/:price', function (req, res) {
+    console.log("storing data");
+
+    tempname = req.params.name ;
+    tempmanu = req.params.manu ;
+    tempprice = req.params.price ;
+
+    res.json('');
+});
+
 //item info for product_detail page
-app.get('/customerlist/:name/:manu/:price', function (req, res) {
+// app.get('/customerlist/:name/:manu/:price', function (req, res) {
+    app.get('/customerlist/', function (req, res) {
 
-  console.log('I received a item info request');
+    console.log('I received a item info request');
 
-  db1.itemlist.findOne({"itemName" : req.params.name.toString(), "itemManufacturer" : req.params.manu.toString(), "itemPrice" : req.params.price.toString()}, function (err, docs) {
-	console.log(docs);
+    console.log(tempname);
+    console.log(tempmanu);
+    console.log(tempprice);
+
+    // console.log(req.params.name);
+    // console.log(req.params.manu);
+    // console.log(req.params.price);
+  // db1.itemlist.findOne({"itemName" : req.params.name.toString(), "itemManufacturer" : req.params.manu.toString(), "itemPrice" : req.params.price.toString()}, function (err, docs) {
+    db1.itemlist.findOne({"itemName" : tempname , "itemManufacturer" : tempmanu , "itemPrice" : tempprice }, function (err, docs) {
+        console.log(docs);
 	res.json(docs);
 	
   });
@@ -188,6 +174,7 @@ app.post('/cartlist/:username', function (req, res) {
     res.json(doc);
   });
 });
+
 
 //cart info for user based on username
 app.get('/cartlist/:name', function (req, res) {
@@ -210,6 +197,17 @@ app.delete('/cartlist/:id', function (req, res) {
   });
 });
 
-app.listen(process.env.PORT || 3000, function(){
-  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
+//recover password by email id
+app.put('/recoverpassword', function (req, res) {
+  console.log(req.body.email);
+  db1.customerlist.findAndModify({
+    query: {email: req.body.email},
+    update: {$set: {password: req.body.newpassword, username: req.body.username}},
+    new: true}, function (err, doc) {
+      res.json(doc);
+    }
+  );
 });
+
+app.listen(7000);
+console.log("Server running on port 7000");

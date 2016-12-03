@@ -62,6 +62,11 @@ myApp.config(function($routeProvider){
     controller : 'EmptyCartCtrl'
   })
   
+  .when('/recover',{
+    templateUrl : '/recover.html',
+    controller : 'RecoverCtrl'
+  })
+  
   .when('/sale',{
     templateUrl : '/sale.html',
     controller : 'SaleCtrl'
@@ -148,9 +153,20 @@ myApp.controller('RegCtrl', ['$scope', '$http', '$location', '$rootScope', '$win
 	  console.log($scope.customer);
 	  $http.post('/customerlist', $scope.customer).success(function(response) {
 		console.log(response);
-		$window.alert("Registration Successful..!!")
+		console.log(response.success);
+		if(response.success)
+		{
+			$scope.customer = "";
+			$window.alert("Registration Successful..!!")
+			
+		}
+		else
+		{
+			$window.alert("Username or Password or Email Id already exist..!!")
+		}
 	  });
 	};
+
 
 	//check username and password
 	$scope.checkCustomer = function(name,password) {
@@ -191,66 +207,143 @@ myApp.controller('HomeCtrl', ['$scope', '$http', '$window', '$rootScope', functi
 	}
 
   });
-		
-	$scope.detail= function(name,manu,price)
-	{
-		Item_name=name;
-		Item_manu=manu;
-		Item_price=price;
-	};
 
+	$scope.detail= function(name,manu,price)
+   {
+   		//alert("inside");
+	   Item_name=name;
+	   Item_manu=manu;
+	   Item_price=price;
+
+	   // + Item_name +'/'+ Item_manu +'/'+ Item_price
+	   // $http.post('/storedata/' + $scope.name, $scope.manu , $scope.price ).success(function(response) {
+	   	$http.post('/storedata/' + Item_name +'/'+ Item_manu +'/'+ Item_price ).success(function(response) {
+			   console.log(response);
+		   });
+	   }
+        // Item_name=name;
+        // Item_manu=manu;
+	    // Item_price=price;
 
 }]);﻿
 
 //living room
-myApp.controller('LivingRoomCtrl', ['$scope', '$http', '$window', function($scope, $http, $window) {
+myApp.controller('LivingRoomCtrl', ['$scope', '$http', '$window','$rootScope', function($scope, $http, $window,$rootScope) {
     console.log("Hello World from living room  controller");
-	
-	$scope.detail= function(name,manu,price)
-	{
-		Item_name=name;
-		Item_manu=manu;
-		Item_price=price;
-	};
+	$http.get('/sessioncheck').success(function(response) {
+		console.log(response);
+		if(response.toString() == 'not exist'){
+			$rootScope.loginlogout='Login';
+			$rootScope.username="";
+		}
+		else{
+			$rootScope.loginlogout='Logout';
+			$rootScope.username=response.toString();
+			$scope.detail= function(name,manu,price)
+			{
+				Item_name=name;
+				Item_manu=manu;
+				Item_price=price;
+
+				$http.post('/storedata/' + Item_name +'/'+ Item_manu +'/'+ Item_price ).success(function(response) {
+					console.log(response);
+				});
+			};
+
+		}
+
+	});
 
 }]);﻿
 
+
+
 //bed room
-myApp.controller('BedroomCtrl', ['$scope', '$http', '$window', function($scope, $http, $window) {
+myApp.controller('BedroomCtrl', ['$scope', '$http', '$window','$rootScope', function($scope, $http, $window , $rootScope ) {
     console.log("Hello World from  Bedroom  controller");
-	
+	$http.get('/sessioncheck').success(function(response) {
+		console.log(response);
+
+		if(response.toString() == 'not exist'){
+			$rootScope.loginlogout='Login';
+			$rootScope.username="";
+		}
+		else{
+			$rootScope.loginlogout='Logout';
+			$rootScope.username=response.toString();
+
+
+		}
+
+	});
+
 	$scope.detail= function(name,manu,price)
 	{
 		Item_name=name;
 		Item_manu=manu;
 		Item_price=price;
+
+		$http.post('/storedata/' + Item_name +'/'+ Item_manu +'/'+ Item_price ).success(function(response) {
+			console.log(response);
+		});
 	};
 
 }]);﻿
 
 //dining room
-myApp.controller('DiningroomCtrl', ['$scope', '$http', '$window', function($scope, $http, $window) {
+myApp.controller('DiningroomCtrl', ['$scope', '$http', '$window','$rootScope' , function($scope, $http, $window , $rootScope ) {
     console.log("Hello World from  Dining room  controller");
-	
-	$scope.detail= function(name,manu,price)
-	{
-		Item_name=name;
-		Item_manu=manu;
-		Item_price=price;
-	};
+	$http.get('/sessioncheck').success(function(response) {
+		console.log(response);
+		if(response.toString() == 'not exist'){
+			$rootScope.loginlogout='Login';
+			$rootScope.username="";
+		}
+		else{
+			$rootScope.loginlogout='Logout';
+			$rootScope.username=response.toString();
+			$scope.detail= function(name,manu,price)
+			{
+				Item_name=name;
+				Item_manu=manu;
+				Item_price=price;
 
+				$http.post('/storedata/' + Item_name +'/'+ Item_manu +'/'+ Item_price ).success(function(response) {
+					console.log(response);
+				});
+			};
+
+		}
+
+	});
 
 }]);﻿
 
 //study room
-myApp.controller('StudyroomCtrl', ['$scope', '$http', '$window', function($scope, $http, $window) {
+myApp.controller('StudyroomCtrl', ['$scope', '$http', '$window' ,'$rootScope', function($scope, $http, $window , $rootScope) {
     console.log("Hello World from  study room  controller");
-	
+	$http.get('/sessioncheck').success(function(response) {
+		console.log(response);
+
+		if(response.toString() == 'not exist'){
+			$rootScope.loginlogout='Login';
+			$rootScope.username="";
+		}
+		else{
+			$rootScope.loginlogout='Logout';
+			$rootScope.username=response.toString();
+
+		}
+
+	});
 	$scope.detail= function(name,manu,price)
 	{
 		Item_name=name;
 		Item_manu=manu;
 		Item_price=price;
+		$http.post('/storedata/' + Item_name +'/'+ Item_manu +'/'+ Item_price ).success(function(response) {
+			console.log(response);
+		});
 	};
 
 }]);
@@ -258,59 +351,117 @@ myApp.controller('StudyroomCtrl', ['$scope', '$http', '$window', function($scope
 //USer Detail
 myApp.controller('UserCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
     console.log("Hello World from  User  controller");
-	console.log($rootScope.username);
-	var temp_username = $rootScope.username;
-	
-	$http.get('/customerlist/'+ temp_username).success(function(response) {
-    console.log("I got the user info");
-    //console.log(response);
-	
-	$scope.u_name=response.name;
-	$scope.u_address=response.address;
-	$scope.u_city=response.city;
-	$scope.u_state=response.state;
-	$scope.u_zip=response.zip;
-	$scope.u_phone=response.phonenumber;
-	$scope.u_email=response.email;
-  });
+
+	$http.get('/sessioncheck').success(function(response) {
+		console.log("I got the data I requested");
+		console.log(response);
+
+		if(response.toString() == 'not exist'){
+			$rootScope.loginlogout='Login';
+			$rootScope.username="";
+		}
+		else{
+			$rootScope.loginlogout='Logout';
+			$rootScope.username=response.toString();
+
+			var temp_username = $rootScope.username;
+
+			$http.get('/customerlist/'+ temp_username).success(function(response) {
+				console.log("I got the user info");
+				//console.log(response);
+
+				$scope.u_name=response.name;
+				$scope.u_address=response.address;
+				$scope.u_city=response.city;
+				$scope.u_state=response.state;
+				$scope.u_zip=response.zip;
+				$scope.u_phone=response.phonenumber;
+				$scope.u_email=response.email;
+			});
+		}
+
+	});
+
 }]);
 
 //product detail
 myApp.controller('ProductCtrl', ['$scope', '$http', '$window', '$location', '$rootScope', function($scope, $http, $window, $location, $rootScope) {
     console.log("Hello World from  product  controller");
+
 	
-	console.log(Item_name, Item_manu, Item_price);
-	
-	//fetch data from itemlist
-	$http.get('/customerlist/'+ Item_name +'/'+ Item_manu +'/'+ Item_price).success(function(response) {
-    console.log("I got the item info");
-    console.log(response);
-	
-	$scope.Item=response;;
-	
-  });
-  
-  // add item into user's cart 
-  $scope.addToCart = function()
-	{
-		console.log($scope.Item);
-		//check whether the user is logged in or not
-		if($rootScope.username.toString() == ""){
-			//if not
-			$window.alert("Please Sign in to add item in your cart..!")
-			$location.path('/login');
+	$http.get('/sessioncheck').success(function(response) {
+		console.log(response);
+
+		if(response.toString() == 'not exist'){
+			$rootScope.loginlogout='Login';
+			$rootScope.username="";
+			//alert("need to login")
 		}
 		else{
-			//if yes
-			console.log($rootScope.username);
-			$http.post('/cartlist/' + $rootScope.username, $scope.Item).success(function(response) {
-			console.log("data entry done..!");
-			console.log(response);
+
+			$rootScope.loginlogout='Logout';
+			$rootScope.username=response.toString();
+
+			// GD Changes Start
+			// Item_name = $scope.Item.itemName;
+			// Item_manu = $rootScope.itemManufacturer;
+	     	// 	Item_price = $rootScope.itemPrice;
+			// Item_name = $rootScope.Item.itemName;
+			// GD Changes End
+
+			//fetch data from itemlist
+			// $http.get('/customerlist/'+ Item_name +'/'+ Item_manu +'/'+ Item_price).success(function(response) {
+				$http.get('/customerlist/').success(function(response) {
+				console.log("I got the item info");
+				console.log(response);
+				
+				$scope.Item=response ;
+
+
 			});
-		
-			$window.alert('Product Added to Cart Successfully..!!');
-		}	
-	};
+
+			// add item into user's cart
+			$scope.addToCart = function()
+			{
+				console.log($rootScope.Item);
+				//check whether the user is logged in or not
+				
+				if($rootScope.username.toString() == ""){
+					//if not
+					$window.alert("Please Sign in to add item in your cart..!")
+					$location.path('/login');
+				}
+				else{
+					//if yes
+					console.log($rootScope.username);
+					
+					$http.get('/customerlist/').success(function(response) {
+					console.log("I got the item info");
+					console.log(response);
+					
+						//prevent negative value and zero into Qnty 
+						//user can not enter item qnty more than available number of items
+						if ( $scope.Item.custQnty > response.itemQnty){
+							$window.alert('you can not enter Item Qunty more than number of available item..!!');
+						}
+						else if($scope.Item.custQnty <= 0)
+						{
+							$window.alert('you can not enter Negative Value or Zero ..!!');
+						}
+						else{
+							$http.post('/cartlist/' + $rootScope.username, $scope.Item).success(function(response) {
+								console.log("data entry done..!");
+								console.log(response);
+							});
+
+							$window.alert('Product Added to Cart Successfully..!!');
+						}
+					});
+				}
+			};
+		}
+
+	});
 
 }]);
 
@@ -318,68 +469,148 @@ myApp.controller('ProductCtrl', ['$scope', '$http', '$window', '$location', '$ro
 myApp.controller('CartCtrl', ['$scope', '$http', '$window', '$rootScope', '$location', function($scope, $http, $window, $rootScope, $location) {
     console.log("Hello World from Cart controller");
 	console.log($rootScope.username);
-	
-	var refresh = function() {
-		if($rootScope.username.toString() == ""){
-			$window.alert("Please Sign in to see items you may have already added to your cart..!")
-			$location.path('/login');
+	$http.get('/sessioncheck').success(function(response) {
+		console.log("I got the data I requested");
+		console.log(response);
+
+		if(response.toString() == 'not exist'){
+			$rootScope.loginlogout='Login';
+			$rootScope.username="";
 		}
 		else{
-			$http.get('/cartlist/'+ $rootScope.username).success(function(response) {
-			console.log("I got the item info");
-			console.log(response);
-			
-			if(response.length <1)
+			$rootScope.loginlogout='Logout';
+			$rootScope.username=response.toString();
+
+			var refresh = function() {
+				if($rootScope.username.toString() == ""){
+					$window.alert("Please Sign in to see items you may have already added to your cart..!")
+					$location.path('/login');
+				}
+				else{
+					$http.get('/cartlist/'+ $rootScope.username).success(function(response) {
+						console.log("I got the item info");
+						console.log(response);
+
+						if(response.length <1)
+						{
+							$location.path('/emptycart');
+						}
+						else{
+							var total=0;
+
+							for(var i=0; i<response.length; i++)
+							{
+								response[i].itemPrice=(response[i].itemPrice).substr(1);
+								total=total + parseFloat(response[i].itemPrice)*parseFloat(response[i].itemCustQnty);
+							}
+							$scope.itemlist=response;
+							console.log(total);
+							$scope.total=total;
+							$scope.vat = (parseFloat(total) * 8.5) /100;
+							$scope.totalWithTax = parseFloat($scope.vat) + parseFloat($scope.total) + 2;
+
+						}
+					});
+				}
+			}
+			refresh();
+
+			// delete item from user's cart
+			$scope.deleteItem = function(cart_id)
 			{
-				$location.path('/emptycart');
+				console.log("delete request");
+				console.log(cart_id);
+				$http.delete('/cartlist/' + cart_id).success(function(response) {
+					refresh();
+				});
 			}
-			else{
-			var total=0;
-			
-			for(var i=0; i<response.length; i++)
+
+			//cancel
+			$scope.cancel = function()
 			{
-				response[i].itemPrice=(response[i].itemPrice).substr(1);
-				total=total + parseFloat(response[i].itemPrice)*parseFloat(response[i].itemCustQnty);
+				$location.path('/home');
 			}
-			$scope.itemlist=response;
-			console.log(total);
-			$scope.total=total;
-			$scope.vat = (parseFloat(total) * 8.5) /100;
-			$scope.totalWithTax = parseFloat($scope.vat) + parseInt($scope.total) + 2;
-			
-			}
-		});
+
 		}
-	}
-	refresh();
-	
-	// delete item from user's cart 
-	$scope.deleteItem = function(cart_id)
-	{
-		console.log("delete request");
-		console.log(cart_id);
-		$http.delete('/cartlist/' + cart_id).success(function(response) {
-		refresh();
-		});
-	}
-	
-	//cancel
-	$scope.cancel = function()
-	{
-		$location.path('/home');
-	}
+
+	});
+	// var refresh = function() {
+	// 	if($rootScope.username.toString() == ""){
+	// 		$window.alert("Please Sign in to see items you may have already added to your cart..!")
+	// 		$location.path('/login');
+	// 	}
+	// 	else{
+	// 		$http.get('/cartlist/'+ $rootScope.username).success(function(response) {
+	// 		console.log("I got the item info");
+	// 		console.log(response);
+    //
+	// 		if(response.length <1)
+	// 		{
+	// 			$location.path('/emptycart');
+	// 		}
+	// 		else{
+	// 		var total=0;
+    //
+	// 		for(var i=0; i<response.length; i++)
+	// 		{
+	// 			response[i].itemPrice=(response[i].itemPrice).substr(1);
+	// 			total=total + parseFloat(response[i].itemPrice)*parseFloat(response[i].itemCustQnty);
+	// 		}
+	// 		$scope.itemlist=response;
+	// 		console.log(total);
+	// 		$scope.total=total;
+	// 		$scope.vat = (parseFloat(total) * 8.5) /100;
+	// 		$scope.totalWithTax = parseFloat($scope.vat) + parseInt($scope.total) + 2;
+    //
+	// 		}
+	// 	});
+	// 	}
+	// }
+	// refresh();
+    //
+	// // delete item from user's cart
+	// $scope.deleteItem = function(cart_id)
+	// {
+	// 	console.log("delete request");
+	// 	console.log(cart_id);
+	// 	$http.delete('/cartlist/' + cart_id).success(function(response) {
+	// 	refresh();
+	// 	});
+	// }
+    //
+	// //cancel
+	// $scope.cancel = function()
+	// {
+	// 	$location.path('/home');
+	// }
 }]);﻿
 
 //sale
 myApp.controller('SaleCtrl', ['$scope', '$http', '$window', '$rootScope', function($scope, $http, $window, $rootScope) {
     console.log("Hello World from Sale controller");
 
-		
+	$http.get('/sessioncheck').success(function(response) {
+		console.log(response);
+
+		if(response.toString() == 'not exist'){
+			$rootScope.loginlogout='Login';
+			$rootScope.username="";
+		}
+		else{
+			$rootScope.loginlogout='Logout';
+			$rootScope.username=response.toString();
+
+		}
+
+	});
 	$scope.itemDetail= function(name,manu,price)
 	{
 		Item_name=name;
 		Item_manu=manu;
 		Item_price=price;
+		$http.post('/storedata/' + Item_name +'/'+ Item_manu +'/'+ Item_price ).success(function(response) {
+			console.log(response);
+		});
 	};
 
 
@@ -388,10 +619,50 @@ myApp.controller('SaleCtrl', ['$scope', '$http', '$window', '$rootScope', functi
 //empty cart
 myApp.controller('EmptyCartCtrl', ['$scope', '$http', '$window', '$rootScope', '$location', function($scope, $http, $window, $rootScope, $location) {
     console.log("Hello World from empty cart controller");
+	$http.get('/sessioncheck').success(function(response) {
+		console.log(response);
 
+		if(response.toString() == 'not exist'){
+			$rootScope.loginlogout='Login';
+			$rootScope.username="";
+		}
+		else{
+			$rootScope.loginlogout='Logout';
+			$rootScope.username=response.toString();
+
+		}
+
+	});
 	$scope.cancel = function()
 	{
 		$location.path('/home');
+	}
+	
+}]);﻿
+
+//recover password
+myApp.controller('RecoverCtrl', ['$scope', '$http', '$window', '$rootScope', '$location', function($scope, $http, $window, $rootScope, $location) {
+    console.log("Hello World from RecoverCtrl");
+	
+	$scope.change = function()
+	{
+		console.log($scope.customer);
+		//update password based on emailid
+		$scope.message = " ";
+		if($scope.customer.newpassword != $scope.customer.confirmpassword)
+		{
+			$scope.message = "Please enter same password."
+		}
+		else
+		{
+			$http.put('/recoverpassword', $scope.customer).success(function(response) {
+				console.log(response);
+				$window.alert("Username Password updated successfully..!!")
+				$location.path('/login');
+			});
+		}
+		
+  
 	}
 	
 }]);﻿
