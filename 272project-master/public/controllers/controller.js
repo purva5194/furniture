@@ -441,6 +441,7 @@ myApp.controller('ProductCtrl', ['$scope', '$http', '$window', '$location', '$ro
 					
 						//prevent negative value and zero into Qnty 
 						//user can not enter item qnty more than available number of items
+						console.log(response.itemQnty);
 						if ( $scope.Item.custQnty > response.itemQnty){
 							$window.alert('you can not enter Item Qunty more than number of available item..!!');
 						}
