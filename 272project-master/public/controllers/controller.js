@@ -62,6 +62,11 @@ myApp.config(function($routeProvider){
     controller : 'EmptyCartCtrl'
   })
   
+  .when('/emptyOrderList',{
+    templateUrl : '/emptyOrderList.html',
+    controller : 'EmptyOrderListCtrl'
+  })
+  
   .when('/recover',{
     templateUrl : '/recover.html',
     controller : 'RecoverCtrl'
@@ -76,6 +81,17 @@ myApp.config(function($routeProvider){
     templateUrl : '/faq.html',
     controller : 'FaqCtrl'
   })
+  
+  .when('/checkout/:totalWithTax',{
+    templateUrl : '/checkout.html',
+    controller : 'CheckoutCtrl'
+  })
+  
+  .when('/orders',{
+    templateUrl : '/orders.html',
+    controller : 'OrdersCtrl'
+  })
+  
   
   .otherwise({redirectTo: '/home'});
 });
@@ -92,6 +108,8 @@ myApp.factory('Scopes', function ($rootScope) {
         }
     };
 });
+
+
 /**
 myApp.controller('AppCtrl', ['$scope', '$http', function($scope, $http) {
     console.log("Hello World from controller");
@@ -459,10 +477,7 @@ myApp.controller('ProductCtrl', ['$scope', '$http', '$window', '$location', '$ro
 						//prevent negative value and zero into Qnty 
 						//user can not enter item qnty more than available number of items
 						console.log(response.itemQnty);
-						if ( $scope.Item.custQnty > response.itemQnty){
-							$window.alert('you can not enter Item Qunty more than number of available item..!!');
-						}
-						else if($scope.Item.custQnty <= 0)
+						if($scope.Item.custQnty <= 0)
 						{
 							$window.alert('you can not enter Negative Value or Zero ..!!');
 						}
@@ -497,6 +512,7 @@ myApp.controller('CartCtrl', ['$scope', '$http', '$window', '$rootScope', '$loca
 		else{
 			$rootScope.loginlogout='Logout';
 			$rootScope.username=response.toString();
+			var totalWithTax = 0.0;
 
 			var refresh = function() {
 				if($rootScope.username.toString() == ""){
@@ -525,7 +541,7 @@ myApp.controller('CartCtrl', ['$scope', '$http', '$window', '$rootScope', '$loca
 							$scope.total=total;
 							$scope.vat = (parseFloat(total) * 8.5) /100;
 							$scope.totalWithTax = parseFloat($scope.vat) + parseFloat($scope.total) + 2;
-
+							totalWithTax = parseFloat($scope.vat) + parseFloat($scope.total) + 2;
 						}
 					});
 				}
@@ -546,6 +562,12 @@ myApp.controller('CartCtrl', ['$scope', '$http', '$window', '$rootScope', '$loca
 			$scope.cancel = function()
 			{
 				$location.path('/home');
+			}
+			
+			$scope.checkout = function()
+			{
+				console.log("checkout : "+ totalWithTax);
+				$location.path('/checkout/'+totalWithTax);
 			}
 
 		}
@@ -655,6 +677,8 @@ myApp.controller('EmptyCartCtrl', ['$scope', '$http', '$window', '$rootScope', '
 		$location.path('/home');
 	}
 	
+	
+	
 }]);﻿
 
 //recover password
@@ -686,6 +710,166 @@ myApp.controller('RecoverCtrl', ['$scope', '$http', '$window', '$rootScope', '$l
 
 myApp.controller('FaqCtrl', ['$scope', '$http', '$window', '$rootScope', '$location', function($scope, $http, $window, $rootScope, $location) {
     console.log("Hello World from FaqCtrl");
+	
+	
+}]);﻿
+
+myApp.controller('CheckoutCtrl', ['$scope', '$http', '$window', '$rootScope', '$location','$routeParams', function($scope, $http, $window, $rootScope, $location, $routeParams) {
+    console.log("Hello World from CheckoutCtrl");
+	
+		console.log("payemnt :"+$routeParams.totalWithTax);
+        Stripe.setPublishableKey('pk_test_EP9anlkEDyh5p75cDVo6loUn');
+        $(function () {
+            var $form = $('#payment-form');
+            $form.submit(function (event) {
+                // Disable the submit button to prevent repeated clicks:
+                $form.find('.submit').prop('disabled', true);
+                //alert("first");
+                // Request a token from Stripe:
+                Stripe.card.createToken($form, stripeResponseHandler);
+
+                // Prevent the form from being submitted:
+                return false;
+            });
+        });
+
+        function stripeResponseHandler(status, response) {
+            // Grab the form:
+            var $form = $('#payment-form');
+
+            if (response.error) { // Problem!
+
+                // Show the errors on the form:
+                $form.find('.payment-errors').text(response.error.message);
+                $form.find('.submit').prop('disabled', false); // Re-enable submission
+
+            } else { // Token was created!
+
+                // Get the token ID:
+                var token = response.id;
+                //alert("second");
+                //alert(token);
+				alert("Payemnt Done Successfully..!!");
+                $scope.payForm.stripeToken=token;
+                // Insert the token ID into the form so it gets submitted to the server:
+               // $form.append($('<input type="hidden" name="stripeToken">').val(token));
+                // Submit the form:
+//                alert(form);
+//            console.log(form);
+                console.log($form);
+                console.log($scope.payForm);
+                console.log($scope.payForm.stripeToken);
+
+                $http({
+                    method: 'POST',
+                    url: '/checkout/'+$routeParams.totalWithTax,
+                    data: $scope.payForm,
+
+                }).then(function (response) {
+                    console.log(response.data);
+                });
+				
+				//insert data into paymentlist
+				$http.get('/cartlist/'+ $rootScope.username).success(function(response) {
+					
+					for(var i=0;i<response.length;i++)
+					{
+						$http.post('/payementlist/' + $rootScope.username, response[i]).success(function(response) {
+			
+						});
+					}
+					
+				});
+            }
+        };
+		
+		
+}]);﻿
+
+//view orders
+myApp.controller('OrdersCtrl', ['$scope', '$http', '$window', '$rootScope', '$location', function($scope, $http, $window, $rootScope, $location) {
+    console.log("Hello World from OrdersCtrl");
+	
+	console.log($rootScope.username);
+	$http.get('/sessioncheck').success(function(response) {
+		console.log("I got the data I requested");
+		console.log(response);
+
+		if(response.toString() == 'not exist'){
+			$rootScope.loginlogout='Login';
+			$rootScope.username="";
+			$window.alert("Please Sign in to see items you may have already added to your cart..!")
+			$location.path('/login');
+		}
+		else{
+			$rootScope.loginlogout='Logout';
+			$rootScope.username=response.toString();
+			var totalWithTax = 0.0;
+
+			var refresh = function() {
+				if($rootScope.username.toString() == ""){
+					$window.alert("Please Sign in to see items you may have already added to your cart..!")
+					$location.path('/login');
+				}
+				else{
+					$http.get('/getpaymentlist/'+ $rootScope.username).success(function(response) {
+						console.log("I got the item info");
+						console.log(response);
+
+						if(response.length <1)
+						{
+							$location.path('/emptyOrderList');
+						}
+						else{
+							var total=0;
+
+							for(var i=0; i<response.length; i++)
+							{
+								response[i].itemPrice=(response[i].itemPrice).substr(1);
+								total=total + parseFloat(response[i].itemPrice)*parseFloat(response[i].itemCustQnty);
+							}
+							$scope.itemlist=response;
+							console.log(total);
+						}
+					});
+				}
+			}
+			refresh();
+
+		}
+
+	});
+	
+	
+			//cancel
+			$scope.okay = function()
+			{
+				$location.path('/home');
+			}
+}]);﻿
+
+//empty orderlist
+myApp.controller('EmptyOrderListCtrl', ['$scope', '$http', '$window', '$rootScope', '$location', function($scope, $http, $window, $rootScope, $location) {
+    console.log("Hello World from EmptyOrderListCtrl");
+	$http.get('/sessioncheck').success(function(response) {
+		console.log(response);
+
+		if(response.toString() == 'not exist'){
+			$rootScope.loginlogout='Login';
+			$rootScope.username="";
+		}
+		else{
+			$rootScope.loginlogout='Logout';
+			$rootScope.username=response.toString();
+
+		}
+
+	});
+	$scope.cancel = function()
+	{
+		$location.path('/home');
+	}
+	
 	
 	
 }]);﻿

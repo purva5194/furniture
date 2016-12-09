@@ -9,6 +9,9 @@ var session = require('express-session');
 var mongoose = require('mongoose');
 
 
+var stripe = require("stripe")("sk_test_5vkZwmhGYktutn7i58j2hnmo");
+
+
 var sess;
 
 app.use(session({
@@ -209,6 +212,67 @@ app.put('/recoverpassword', function (req, res) {
   );
 });
 
+//payment
+app.post('/checkout/:total', function (req, res) {
+
+    console.log(req);
+	console.log("============================================="+req.params.total);
+    // Get the credit card details submitted by the form
+    var token = req.body.stripeToken; // Using Express
+
+    console.log("gagan");
+        console.log(token);
+// Create a charge: this will charge the user's card
+    var charge = stripe.charges.create({
+
+        amount: req.params.total * 100, // Amount in cents
+        currency: "usd",
+        source: token,
+        description: "Example charge"
+    }, function(err, charge) {
+        if (err && err.type === 'StripeCardError') {
+            // The card has been declined
+        }
+        else{
+            console.log("ankit");}
+    });
+});
+
+
 app.listen(process.env.PORT || 3000, function(){
   console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
+});
+
+//insert item into payemntlist and remove from cartlist
+app.post('/payementlist/:username', function (req, res) {
+  console.log("===================="+req.body.itemName);
+  console.log("====================="+req.params.username);
+  var data = {"userName":req.params.username.toString(), 
+							"itemName":req.body.itemName, 
+							"itemPrice":req.body.itemPrice, 
+							"itemManufacturer":req.body.itemManufacturer, 
+							"itemPath":req.body.itemPath, 
+							"itemCustQnty":req.body.itemCustQnty};
+							
+  db1.payementlist.insert(data, function(err, doc) {
+	  console.log("data -> payementlist");
+    //res.json(doc);
+  });
+  
+  //remove from cart
+  db1.cartlist.remove({userName:req.params.username}, function(err, doc){
+	  
+  });
+});
+
+//cart info for user based on username
+app.get('/getpaymentlist/:name', function (req, res) {
+
+  console.log('I received a payemntlist info request');
+
+  db1.payementlist.find({"userName" : req.params.name}, function (err, docs) {
+	console.log(docs);
+	res.json(docs);
+	
+  });
 });
