@@ -749,7 +749,7 @@ myApp.controller('CheckoutCtrl', ['$scope', '$http', '$window', '$rootScope', '$
                 var token = response.id;
                 //alert("second");
                 //alert(token);
-				alert("Payment Done Successfully..!!");
+				alert("Payemnt Done Successfully..!!");
                 $scope.payForm.stripeToken=token;
                 // Insert the token ID into the form so it gets submitted to the server:
                // $form.append($('<input type="hidden" name="stripeToken">').val(token));
@@ -780,7 +780,6 @@ myApp.controller('CheckoutCtrl', ['$scope', '$http', '$window', '$rootScope', '$
 					}
 					
 				});
-				$location.path('/home');
             }
         };
 		
