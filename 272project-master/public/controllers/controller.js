@@ -740,7 +740,8 @@ myApp.controller('CheckoutCtrl', ['$scope', '$http', '$window', '$rootScope', '$
             if (response.error) { // Problem!
 
                 // Show the errors on the form:
-                $form.find('.payment-errors').text(response.error.message);
+                //$form.find('.payment-errors').text(response.error.message);
+				$window.alert("Please Enter Valid Card Details..!!");
                 $form.find('.submit').prop('disabled', false); // Re-enable submission
 
             } else { // Token was created!
