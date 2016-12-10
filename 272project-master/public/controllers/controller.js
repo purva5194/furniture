@@ -780,6 +780,7 @@ myApp.controller('CheckoutCtrl', ['$scope', '$http', '$window', '$rootScope', '$
 					}
 					
 				});
+				$location.path('/home');
             }
         };
 		
